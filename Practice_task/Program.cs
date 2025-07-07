@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.Design;
+using System.Globalization;
+using System.Runtime.ExceptionServices;
 using System.Text;
 
 namespace Practice_task
@@ -23,9 +25,13 @@ namespace Practice_task
 
         private static decimal[] PriceList = { };
         private static string[] DescriptionList = { };
+        private static decimal TipPrice = 0;
 
         static void Main(string[] args)
         {
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");
+
             Menu();
         }
 
@@ -68,12 +74,16 @@ namespace Practice_task
                     {
                         DeleteProduct(userChoice);
                     }
+                    else
+                    {
+                        userChoice = 1;
+                    }
 
                     continue;
                 }
                 else if (userChoice == 3)
                 {
-                    //add tip
+                    GetTipType();
                 }
                 else if (userChoice == 4)
                 {
@@ -127,7 +137,7 @@ namespace Practice_task
                 sb.AppendLine(string.Format("{0,5} {1,-20} {2,10}",
                     i + 1,
                     DescriptionList[i],
-                    PriceList[i]));
+                    PriceList[i].ToString("C")));
             }
 
             Console.WriteLine(sb.ToString());
@@ -163,14 +173,73 @@ namespace Practice_task
             Console.WriteLine("Product removed successfully.");
         }
 
-        private static void GetTipType()
+        private static decimal GetTotalPrice()
         {
+            if (DescriptionList.Length == 0)
+            {
+                Console.WriteLine("There a no products in the bill to calculate total price");
+                return -1;
+            }
 
+            decimal totalByProducts = 0;
+            foreach (decimal price in PriceList)
+            {
+                totalByProducts += price;
+            }
+            return totalByProducts;
         }
 
-        private static void AddTip()
+        private static void GetTipType()
         {
+            int tipType = 0;
 
+            if(DescriptionList.Length == 0)
+            {
+                Console.WriteLine("There a no products in the bill to add tip for");
+                return;
+            }
+            string menuTips =
+                "1 - Tip Percentage\n" +
+                "2 - Tip Amount\n" +
+                "3 - No Tip (delete tip)";
+
+            Console.WriteLine("Net Total: $" + GetTotalPrice());
+            Console.WriteLine(menuTips);
+
+            tipType = Convert.ToInt32(Console.ReadLine());
+
+            AddTip(tipType);
+        }
+
+        private static void AddTip(int tipType)
+        {
+            if (tipType == 1)
+            {
+                Console.Write("Enter Tip percent: ");
+                int percentage = Convert.ToInt32(Console.ReadLine());//add error
+
+                TipPrice = GetTotalPrice() * ((decimal)percentage / 100);
+
+                Console.WriteLine($"Tip Added: {TipPrice} ({percentage}%)");
+            }
+            else if(tipType == 2)
+            {
+                Console.Write("Enter Tip amount: ");
+                int amount = Convert.ToInt32(Console.ReadLine());//add error
+
+                TipPrice = amount;
+
+                Console.WriteLine($"Tip Added: {TipPrice}");
+            }
+            else if(tipType == 3)
+            {
+                Console.WriteLine("No tips (tip cleared)");
+                TipPrice = 0;
+            }
+            else
+            {
+                Console.WriteLine("Invalide tip type!");
+            }
         }
 
         private static void ShowProducts()
