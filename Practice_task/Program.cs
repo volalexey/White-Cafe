@@ -38,46 +38,26 @@ namespace Practice_task
         private static void Menu()
         {
             int userChoice;
-
             Console.WriteLine(_menuList);
 
             do
             {
-                Console.Write("Enter your chioce: ");
-                userChoice = Convert.ToInt32(Console.ReadLine());//add error
+                Console.Write("Enter your choice: ");
+                if (!int.TryParse(Console.ReadLine(), out userChoice))
+                {
+                    Console.WriteLine("Invalid input. Please enter a number from 0 to 7.");
+                    userChoice = -1;
+                    continue;
+                }
+
 
                 if (userChoice == 1)
                 {
-                    Console.Write("Enter product description: ");
-                    string desc = Console.ReadLine();
-
-                    Console.Write("Enter product price: ");
-                    if (decimal.TryParse(Console.ReadLine(), out decimal price))
-                    {
-                        AddProduct(desc, price);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid price.");
-                    }
+                    AddProductOption();
                 }
                 else if (userChoice == 2)
                 {
-                    ShowProductsToDeleate();
-
-                    Console.Write("Enter the product number to remove ot 0 to cancel:  ");
-                    userChoice = Convert.ToInt32(Console.ReadLine());//add error
-
-                    if(userChoice != 0)
-                    {
-                        DeleteProduct(userChoice);
-                    }
-                    else
-                    {
-                        userChoice = 1;
-                    }
-
-                    continue;
+                    DeleteProductOption();
                 }
                 else if (userChoice == 3)
                 {
@@ -97,7 +77,7 @@ namespace Practice_task
                 }
                 else if(userChoice == 7)
                 {
-                    //upload
+                    LoadFromFile();
                 }
                 else if(userChoice == 0)
                 {
@@ -105,7 +85,7 @@ namespace Practice_task
                 }
                 else
                 {
-                    Console.WriteLine("Bad option!");
+                    Console.WriteLine("Invalid option. Try again.");
                 }
 
             } while (userChoice != 0);
@@ -122,7 +102,27 @@ namespace Practice_task
             Console.WriteLine($"Added: {description} - {price}");
         }
 
-        private static void ShowProductsToDeleate()
+        private static void AddProductOption()
+        {
+            Console.Write("Enter product description (3-20 chars): ");
+            string desc = Console.ReadLine().Trim();
+            if (desc.Length < 3 || desc.Length > 20)
+            {
+                Console.WriteLine("Description must be between 3 and 20 characters.");
+                return;
+            }
+
+            Console.Write("Enter product price (>0): ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal price) || price <= 0)
+            {
+                Console.WriteLine("Invalid price. Must be a positive number.");
+                return;
+            }
+
+            AddProduct(desc, price);
+        }
+
+        private static void ShowProductsToDelete()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(string.Format("{0,5} {1,-20} {2,10}", "No", "Description", "Price"));
@@ -142,31 +142,44 @@ namespace Practice_task
         private static void DeleteProduct(int itemNo)
         {
             int index = itemNo - 1;
-
             if (index < 0 || index >= DescriptionList.Length)
             {
                 Console.WriteLine("Invalid item number.");
                 return;
             }
 
-            string[] newDescriptions = new string[DescriptionList.Length - 1];
-            decimal[] newPrices = new decimal[PriceList.Length - 1];
+            var newDesc = new List<string>();
+            var newPrices = new List<decimal>();
 
-            int newIdx = 0;
             for (int i = 0; i < DescriptionList.Length; i++)
             {
-                if (i == index)
-                    continue;
-
-                newDescriptions[newIdx] = DescriptionList[i];
-                newPrices[newIdx] = PriceList[i];
-                newIdx++;
+                if (i != index)
+                {
+                    newDesc.Add(DescriptionList[i]);
+                    newPrices.Add(PriceList[i]);
+                }
             }
 
-            DescriptionList = newDescriptions;
-            PriceList = newPrices;
-
+            DescriptionList = newDesc.ToArray();
+            PriceList = newPrices.ToArray();
             Console.WriteLine("Product removed successfully.");
+        }
+
+        private static void DeleteProductOption()
+        {
+            ShowProductsToDelete();
+            Console.Write("Enter the product number to remove or 0 to cancel: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int itemNo))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
+
+            if (itemNo == 0)
+                return;
+
+            DeleteProduct(itemNo);
         }
 
         private static decimal GetProductsPrice()
@@ -197,22 +210,20 @@ namespace Practice_task
 
         private static void GetTipType()
         {
-            int tipType = 0;
-
-            if(DescriptionList.Length == 0)
+            if (DescriptionList.Length == 0)
             {
-                Console.WriteLine("There a no products in the bill to add tip for");
+                Console.WriteLine("There are no products to add a tip for.");
                 return;
             }
-            string menuTips =
-                "1 - Tip Percentage\n" +
-                "2 - Tip Amount\n" +
-                "3 - No Tip (delete tip)";
 
-            Console.WriteLine("Net Total: $" + GetProductsPrice());
-            Console.WriteLine(menuTips);
+            Console.WriteLine($"Net Total: {GetProductsPrice():C}");
+            Console.WriteLine("1 - Tip Percentage\n2 - Tip Amount\n3 - No Tip (clear)");
 
-            tipType = Convert.ToInt32(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int tipType))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
 
             AddTip(tipType);
         }
@@ -221,30 +232,36 @@ namespace Practice_task
         {
             if (tipType == 1)
             {
-                Console.Write("Enter Tip percent: ");
-                int percentage = Convert.ToInt32(Console.ReadLine());//add error
+                Console.Write("Enter Tip percent (>0): ");
+                if (!int.TryParse(Console.ReadLine(), out int perc) || perc <= 0)
+                {
+                    Console.WriteLine("Invalid percentage.");
+                    return;
+                }
 
-                TipPrice = GetProductsPrice() * ((decimal)percentage / 100);
-
-                Console.WriteLine($"Tip Added: {TipPrice} ({percentage}%)");
+                TipPrice = GetProductsPrice() * perc / 100m;
+                Console.WriteLine($"Tip Added: {TipPrice:C} ({perc}%)");
             }
-            else if(tipType == 2)
+            else if (tipType == 2)
             {
-                Console.Write("Enter Tip amount: ");
-                int amount = Convert.ToInt32(Console.ReadLine());//add error
+                Console.Write("Enter Tip amount (>=0): ");
+                if (!decimal.TryParse(Console.ReadLine(), out decimal amt) || amt < 0)
+                {
+                    Console.WriteLine("Invalid amount.");
+                    return;
+                }
 
-                TipPrice = amount;
-
-                Console.WriteLine($"Tip Added: {TipPrice}");
+                TipPrice = amt;
+                Console.WriteLine($"Tip Added: {TipPrice:C}");
             }
-            else if(tipType == 3)
+            else if (tipType == 3)
             {
-                Console.WriteLine("No tips (tip cleared)");
                 TipPrice = 0;
+                Console.WriteLine("Tip cleared.");
             }
             else
             {
-                Console.WriteLine("Invalide tip type!");
+                Console.WriteLine("Invalid tip type.");
             }
         }
 
@@ -327,6 +344,58 @@ namespace Practice_task
             catch (Exception ex)
             {
                 Console.WriteLine($"Error saving file: {ex.Message}");
+            }
+        }
+
+        private static void LoadFromFile()
+        {
+            Console.Write("Enter filename to load (without extension): ");
+            string fileName = Console.ReadLine().Trim();
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine("Filename cannot be empty.");
+                return;
+            }
+
+            string fullFileName = fileName + ".txt";
+
+            if (!File.Exists(fullFileName))
+            {
+                Console.WriteLine($"File '{fullFileName}' does not exist.");
+                return;
+            }
+
+            try
+            {
+                var lines = File.ReadAllLines(fullFileName);
+                var desc = new List<string>();
+                var prices = new List<decimal>();
+
+                foreach (var line in lines)
+                {
+                    var parts = line.Split('|');
+                    if (parts.Length != 2 ||
+                        parts[0].Length < 3 || parts[0].Length > 20 ||
+                        !decimal.TryParse(parts[1], out decimal price) || price <= 0)
+                    {
+                        Console.WriteLine($"Invalid line skipped: {line}");
+                        continue;
+                    }
+
+                    desc.Add(parts[0]);
+                    prices.Add(price);
+                }
+
+                DescriptionList = desc.ToArray();
+                PriceList = prices.ToArray();
+                TipPrice = 0;
+
+                Console.WriteLine($"Order loaded from '{fullFileName}'. Tip cleared.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading file: {ex.Message}");
             }
         }
     }
