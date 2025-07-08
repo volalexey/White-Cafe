@@ -16,7 +16,7 @@ namespace Practice_task
             "| | 3. Add Tip \t\t| |\n" +
             "| | 4. Display Bill \t| |\n" +
             "| | 5. Clear All \t| |\n" +
-            "| | 6. Save TO File \t| |\n" +
+            "| | 6. Save To File \t| |\n" +
             "| | 7. Load from File \t| |\n" +
             "| | 0. Exit \t\t| |\n" +
             "|  ---------------------  |\n" +
@@ -93,7 +93,7 @@ namespace Practice_task
                 }
                 else if(userChoice == 6)
                 {
-                    //save
+                    SaveToFile();
                 }
                 else if(userChoice == 7)
                 {
@@ -281,6 +281,53 @@ namespace Practice_task
             TipPrice = 0;
 
             Console.WriteLine("Order cleared.");
+        }
+
+        private static void SaveToFile()
+        {
+            if (DescriptionList.Length == 0)
+            {
+                Console.WriteLine("No products to save.");
+                return;
+            }
+
+            Console.Write("Enter filename (without extension): ");
+            string fileName = Console.ReadLine().Trim();
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.WriteLine("Filename cannot be empty.");
+                return;
+            }
+
+            string fullFileName = fileName + ".txt";
+
+            if (File.Exists(fullFileName))
+            {
+                Console.Write($"File '{fullFileName}' already exists. Overwrite? (y/n): ");
+                string overwrite = Console.ReadLine().Trim().ToLower();
+                if (overwrite != "y")
+                {
+                    Console.WriteLine("Save cancelled.");
+                    return;
+                }
+            }
+
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(fullFileName))
+                {
+                    for (int i = 0; i < DescriptionList.Length; i++)
+                    {
+                        sw.WriteLine($"{DescriptionList[i]}|{PriceList[i]}");
+                    }
+                }
+                Console.WriteLine($"Order saved to file '{fullFileName}'.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving file: {ex.Message}");
+            }
         }
     }
 }
