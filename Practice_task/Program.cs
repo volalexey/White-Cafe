@@ -48,7 +48,6 @@ namespace Practice_task
 
                 if (userChoice == 1)
                 {
-                    //add product
                     Console.Write("Enter product description: ");
                     string desc = Console.ReadLine();
 
@@ -64,7 +63,6 @@ namespace Practice_task
                 }
                 else if (userChoice == 2)
                 {
-                    //remove product
                     ShowProductsToDeleate();
 
                     Console.Write("Enter the product number to remove ot 0 to cancel:  ");
@@ -91,7 +89,7 @@ namespace Practice_task
                 }
                 else if(userChoice == 5)
                 {
-                    //clear
+                    ClearOrder();
                 }
                 else if(userChoice == 6)
                 {
@@ -103,12 +101,10 @@ namespace Practice_task
                 }
                 else if(userChoice == 0)
                 {
-                    //exit
                     Console.WriteLine("Have a nice day!");
                 }
                 else
                 {
-                    //again
                     Console.WriteLine("Bad option!");
                 }
 
@@ -276,6 +272,15 @@ namespace Practice_task
             sb.AppendLine($"{"Total Amount:",-40} {GetTotalPrice(),10:C}");
 
             Console.WriteLine(sb.ToString());
+        }
+
+        private static void ClearOrder()
+        {
+            DescriptionList = [];
+            PriceList = [];
+            TipPrice = 0;
+
+            Console.WriteLine("Order cleared.");
         }
     }
 }
