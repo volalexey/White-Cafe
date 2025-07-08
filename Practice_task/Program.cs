@@ -104,6 +104,12 @@ namespace Practice_task
 
         private static void AddProductOption()
         {
+            if (DescriptionList.Length >= 5)
+            {
+                Console.WriteLine("Cannot add more than 5 products.");
+                return;
+            }
+
             Console.Write("Enter product description (3-20 chars): ");
             string desc = Console.ReadLine().Trim();
             if (desc.Length < 3 || desc.Length > 20)
@@ -308,12 +314,12 @@ namespace Practice_task
                 return;
             }
 
-            Console.Write("Enter filename (without extension): ");
+            Console.Write("Enter filename (1-10 chars, without extension): ");
             string fileName = Console.ReadLine().Trim();
 
-            if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(fileName) || fileName.Length > 10)
             {
-                Console.WriteLine("Filename cannot be empty.");
+                Console.WriteLine("Filename must be between 1 and 10 characters.");
                 return;
             }
 
@@ -349,12 +355,12 @@ namespace Practice_task
 
         private static void LoadFromFile()
         {
-            Console.Write("Enter filename to load (without extension): ");
+            Console.Write("Enter filename to load (1-10 chars, without extension): ");
             string fileName = Console.ReadLine().Trim();
 
-            if (string.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(fileName) || fileName.Length > 10)
             {
-                Console.WriteLine("Filename cannot be empty.");
+                Console.WriteLine("Filename must be between 1 and 10 characters.");
                 return;
             }
 
@@ -381,6 +387,12 @@ namespace Practice_task
                     {
                         Console.WriteLine($"Invalid line skipped: {line}");
                         continue;
+                    }
+
+                    if (desc.Count >= 5)
+                    {
+                        Console.WriteLine("Cannot load more than 5 products. Some lines skipped.");
+                        break;
                     }
 
                     desc.Add(parts[0]);
