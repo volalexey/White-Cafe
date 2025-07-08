@@ -87,7 +87,7 @@ namespace Practice_task
                 }
                 else if (userChoice == 4)
                 {
-                    //show
+                    ShowProducts();
                 }
                 else if(userChoice == 5)
                 {
@@ -173,7 +173,7 @@ namespace Practice_task
             Console.WriteLine("Product removed successfully.");
         }
 
-        private static decimal GetTotalPrice()
+        private static decimal GetProductsPrice()
         {
             if (DescriptionList.Length == 0)
             {
@@ -187,6 +187,16 @@ namespace Practice_task
                 totalByProducts += price;
             }
             return totalByProducts;
+        }
+
+        private static decimal GetGSTPrice()
+        {
+            return GetProductsPrice() * (decimal)0.05;
+        }
+
+        private static decimal GetTotalPrice()
+        {
+            return GetProductsPrice() + GetGSTPrice() + TipPrice;
         }
 
         private static void GetTipType()
@@ -203,7 +213,7 @@ namespace Practice_task
                 "2 - Tip Amount\n" +
                 "3 - No Tip (delete tip)";
 
-            Console.WriteLine("Net Total: $" + GetTotalPrice());
+            Console.WriteLine("Net Total: $" + GetProductsPrice());
             Console.WriteLine(menuTips);
 
             tipType = Convert.ToInt32(Console.ReadLine());
@@ -218,7 +228,7 @@ namespace Practice_task
                 Console.Write("Enter Tip percent: ");
                 int percentage = Convert.ToInt32(Console.ReadLine());//add error
 
-                TipPrice = GetTotalPrice() * ((decimal)percentage / 100);
+                TipPrice = GetProductsPrice() * ((decimal)percentage / 100);
 
                 Console.WriteLine($"Tip Added: {TipPrice} ({percentage}%)");
             }
@@ -244,7 +254,28 @@ namespace Practice_task
 
         private static void ShowProducts()
         {
+            if (DescriptionList.Length == 0)
+            {
+                Console.WriteLine("No products to display.");
+                return;
+            }
 
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"{"Description",-40} {"Price",10}");
+            sb.AppendLine(new string('-', 52));
+
+            for (int i = 0; i < DescriptionList.Length; i++)
+            {
+                sb.AppendLine($"{DescriptionList[i],-40} {PriceList[i],10:C}");
+            }
+
+            sb.AppendLine(new string('-', 52));
+            sb.AppendLine($"{"NetTotal:",-40} {GetProductsPrice(),10:C}");
+            sb.AppendLine($"{"Tip Amount:",-40} {TipPrice,10:C}");
+            sb.AppendLine($"{"GST Amount:",-40} {GetGSTPrice(),10:C}");
+            sb.AppendLine($"{"Total Amount:",-40} {GetTotalPrice(),10:C}");
+
+            Console.WriteLine(sb.ToString());
         }
     }
 }
