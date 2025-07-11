@@ -42,7 +42,7 @@ namespace Practice_task
 
             do
             {
-                Console.Write("Enter your choice: ");
+                Console.Write("\nEnter your choice: ");
                 if (!int.TryParse(Console.ReadLine(), out userChoice))
                 {
                     Console.WriteLine("Invalid input. Please enter a number from 0 to 7.");
@@ -175,16 +175,10 @@ namespace Practice_task
 
             Console.WriteLine("Item removed successfully.");
 
-            if(TipPrice != 0)
-            {
-                TipPrice = 0;
-                Console.WriteLine("Tip cleared.");
+            TipPrice = 0;
+            Console.WriteLine("Tip cleared.");
 
-                if(DescriptionList.Length > 0)
-                {
-                    GetTipType();
-                }
-            }
+            GetTipType();
 
             return true;
         }
@@ -197,9 +191,10 @@ namespace Practice_task
                 return;
             }
 
+            ShowProductsToDelete();
+
             while (true)
             {
-                ShowProductsToDelete();
                 Console.Write("Enter the product number to remove or 0 to cancel: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int itemNo))
@@ -255,12 +250,12 @@ namespace Practice_task
                 return;
             }
 
+            Console.WriteLine($"\nNet Total: {GetProductsPrice():C}");
+            Console.WriteLine("1 - Tip Percentage\n2 - Tip Amount\n3 - No Tip (clear)\n0 - Back");
+
             while (true)
             {
-                Console.WriteLine($"\nNet Total: {GetProductsPrice():C}");
-                Console.WriteLine("1 - Tip Percentage\n2 - Tip Amount\n3 - No Tip (clear)\n0 - Back");
-
-                Console.Write("Enter tip method: ");
+                Console.Write("\nEnter tip method: ");
                 if (!int.TryParse(Console.ReadLine(), out int tipType))
                 {
                     Console.WriteLine("Invalid input. Please enter a number.");
@@ -365,7 +360,7 @@ namespace Practice_task
             sb.AppendLine($"{"NetTotal:",-40} {GetProductsPrice(),10:C}");
             sb.AppendLine($"{"Tip Amount:",-40} {TipPrice,10:C}");
             sb.AppendLine($"{"GST Amount:",-40} {GetGSTPrice(),10:C}");
-            sb.AppendLine($"{"Total Amount:",-40} {GetTotalPrice(),10:C}");
+            sb.Append($"{"Total Amount:",-40} {GetTotalPrice(),10:C}");
 
             Console.WriteLine(sb.ToString());
         }
